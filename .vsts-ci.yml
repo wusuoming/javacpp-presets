@@ -6,10 +6,14 @@ steps:
     (New-Object System.Net.WebClient).DownloadFile("http://www.7-zip.org/a/7z1604-x64.msi", "7z1604-x64.msi")
     (New-Object System.Net.WebClient).DownloadFile("http://repo.msys2.org/distrib/x86_64/msys2-base-x86_64-20180531.tar.xz", "msys2-base-x86_64-20180531.tar.xz")
     (New-Object System.Net.WebClient).DownloadFile("https://www.python.org/ftp/python/2.7.15/python-2.7.15.amd64.msi", "python-2.7.15.amd64.msi")
-    Start-Process -FilePath msiexec.exe -ArgumentList '/i 7z1604-x64.msi /qn INSTALLDIR=C:\7-Zip\' -Wait
+    Start-Process -FilePath msiexec.exe -ArgumentList '/i 7z1604-x64.msi /qn /l 7z.log INSTALLDIR=C:\7-Zip\' -Wait
+    type 7z.log
+    dir C:\7-Zip\
     C:\7-Zip\7z.exe e -y msys2-base-x86_64-20180531.tar.xz
     C:\7-Zip\7z.exe x -y msys2-base-x86_64-20180531.tar -oC:\
-    Start-Process -FilePath msiexec.exe -ArgumentList '/i python-2.7.15.amd64.msi /qn TARGETDIR=C:\Python27\' -Wait
+    Start-Process -FilePath msiexec.exe -ArgumentList '/i python-2.7.15.amd64.msi /qn /l python.log TARGETDIR=C:\Python27\' -Wait
+    type python.log
+    dir C:\Python27\
     cd $env:APPVEYOR_BUILD_FOLDER; ci\build.cmd $env:PROJ
   workingDirectory: $(Agent.HomeDirectory)
   env:
