@@ -1,0 +1,21 @@
+queue: 'Hosted'
+
+steps:
+- powershell: |
+    [System.Net.ServicePointManager]::SecurityProtocol = 'tls12'
+    (New-Object System.Net.WebClient).DownloadFile("http://www.7-zip.org/a/7z1604-x64.exe", "7z1604-x64.exe")
+    (New-Object System.Net.WebClient).DownloadFile("http://repo.msys2.org/distrib/x86_64/msys2-base-x86_64-20180531.tar.xz", "msys2-base-x86_64-20180531.tar.xz")
+    (New-Object System.Net.WebClient).DownloadFile("https://www.python.org/ftp/python/2.7.15/python-2.7.15.amd64.msi", "python-2.7.15.amd64.msi")
+    Start-Process -FilePath .\7z1604-x64.exe -ArgumentList '/S /D=C:\7-Zip\' -Wait
+    C:\7-Zip\7z.exe e -y msys2-base-x86_64-20180531.tar.xz
+    C:\7-Zip\7z.exe x -y msys2-base-x86_64-20180531.tar -oC:\
+    Start-Process -FilePath msiexec.exe -ArgumentList '/i python-2.7.15.amd64.msi /qn TARGETDIR=C:\Python27\' -Wait
+    cd $env:APPVEYOR_BUILD_FOLDER; ci\build.cmd $env:PROJ
+  workingDirectory: $(Agent.HomeDirectory)
+  env:
+    PROJ: tensorflow
+    OS: windows-x86_64
+    APPVEYOR_BUILD_FOLDER: $(System.DefaultWorkingDirectory)
+    APPVEYOR_REPO_BRANCH: $(Build.SourceBranchName)
+    APPVEYOR_PULL_REQUEST_NUMBER: $(System.PullRequest.PullRequestId)
+
